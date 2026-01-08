@@ -1,0 +1,833 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1344,
+        96
+      ],
+      "id": "b1cbc811-6097-4f65-b629-6e5cb55e4a6d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs",
+          "mode": "list",
+          "cachedResultName": "landlord-test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        96
+      ],
+      "id": "9fa1a5fe-a377-461e-a31c-8255fb17a121",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VkAQHxhd5Rj8JCYH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ea28a615-2505-4e48-b048-decab843a619",
+              "leftValue": "={{ $json.shouldRemind }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2176,
+        96
+      ],
+      "id": "3daaa4f5-3c91-4eb4-8ce1-151710661fbe",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.reminderType }}",
+                    "rightValue": "upcoming",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "08d21228-eb26-4164-b9d8-a65866bc32c0"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0f3998f6-0503-4734-8d4d-af46d1d981fa",
+                    "leftValue": "={{ $json.reminderType }}",
+                    "rightValue": "overdue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ab381b81-6cfe-4174-8fa6-59379b555671",
+                    "leftValue": "={{ $json.reminderType }}",
+                    "rightValue": "due-today",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2400,
+        64
+      ],
+      "id": "03f1a64b-18a1-4583-941f-3c8767e1d8a3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=Rent is due in {{ $json.daysUntil }} - unit {{ $json['Unit #'] }}",
+        "message": "=<p>Hi {{ $json['Tenant Name'] }},</p>\n\n<p>\nThis is a friendly reminder that your rent is due in \n<strong>{{ $json.daysUntil }}</strong> days, or on \n<strong>{{ $json['Due Date'] }}</strong>, for unit \n<strong>{{ $json['Unit #'] }}</strong> in the \n<strong>{{ $json.Building }}</strong>.\n</p>\n\n<p>\nPlease submit payment as soon as possible in order to avoid late fees.\nIf you've already paid, please reply with your payment confirmation and disregard this notice.\n</p>\n",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2592,
+        -80
+      ],
+      "id": "4fd7c5e1-5ad2-4e32-afb1-8448c4b4cc97",
+      "name": "Send a message",
+      "webhookId": "7bbd6d24-9be2-4c7d-9393-ffc074d23468",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QJz1hRlbfbCVUk4T",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=Rent is due in {{ $json.daysUntil }} - unit {{ $json['Unit #'] }}",
+        "message": "=<p>Hi {{ $json['Tenant Name'] }},</p>\n\n<p>\nThis is a friendly reminder that your rent is overdue by \n<strong>{{ $json.daysOverdue }}</strong> days for unit \n<strong>{{ $json['Unit #'] }}</strong> in the \n<strong>{{ $json.Building }}</strong>.\n</p>\n\n<p>\nPlease submit payment as soon as possible in order to avoid new or upcoming late fees.\nIf you've already paid, please reply with your payment confirmation and disregard this notice.\n</p>\n\n<p><strong>Payment Methods:</strong></p>\n<ul>\n  <li>Venmo: @YourVenmoHandle</li>\n  <li>Zelle: yourname@email.com</li>\n  <li>Check: Mail to [Your Address]</li>\n</ul>\n\n<p><strong>Late Fee Policy:</strong></p>\n<ul>\n  <li>$50 fee after 5 days</li>\n  <li>$10/day after 10 days</li>\n</ul>\n\n<p>\nIf you are experiencing financial difficulty or are unable to pay rent, please contact me so we can work something out.\n</p>\n\n<p>\nRegards,<br>\n[Your Name]<br>\nProperty Management<br>\n[Your Phone Number]\n</p>\n",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2592,
+        48
+      ],
+      "id": "520be072-1223-4b1a-889a-6435eca15792",
+      "name": "Send a message1",
+      "webhookId": "7bbd6d24-9be2-4c7d-9393-ffc074d23468",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QJz1hRlbfbCVUk4T",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=Rent is due today - unit {{ $json['Unit #'] }}",
+        "message": "=<p>Hi {{ $json['Tenant Name'] }},</p>\n\n<p>\nThis is a friendly reminder that your rent is <strong>due today</strong> for unit\n<strong>{{ $json['Unit #'] }}</strong> in the <strong>{{ $json.Building }}</strong>.\n</p>\n\n<p>\nPlease submit payment as soon as possible in order to avoid late fees.\nIf you've already paid, please reply with your payment confirmation and disregard this notice.\n</p>\n\n<p><strong>Payment Methods:</strong></p>\n<ul>\n  <li>Venmo: @YourVenmoHandle</li>\n  <li>Zelle: yourname@email.com</li>\n  <li>Check: Mail to [Your Address]</li>\n</ul>\n\n<p><strong>Late Fee Policy:</strong></p>\n<ul>\n  <li>$50 fee after 5 days</li>\n  <li>$10/day after 10 days</li>\n</ul>\n\n<p>\nIf you are experiencing financial difficulty or are unable to pay rent, please contact me so we can work something out.\n</p>\n\n<p>\nRegards,<br>\n[Your Name]<br>\nProperty Management<br>\n[Your Phone Number]\n</p>\n",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2592,
+        192
+      ],
+      "id": "02c27bbc-1411-43d8-8c4c-f44e4f90cad8",
+      "name": "Send a message2",
+      "webhookId": "7bbd6d24-9be2-4c7d-9393-ffc074d23468",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QJz1hRlbfbCVUk4T",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2912,
+        32
+      ],
+      "id": "d81d538d-318b-4907-bf6c-ffb354d5db44",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst results = items.map(item => {\n  const tenant = item.json;\n\n  const email = tenant['Email'] || 'N/A';\n  const rentAmount = tenant['Rent Amount'] || 0;\n  const reminderSent = tenant['Reminder Sent'] || 'FALSE';\n\n  const dueDate = new Date(tenant['Due Date']);\n  dueDate.setHours(0, 0, 0, 0);\n\n  const timeDiff = dueDate.getTime() - today.getTime();\n  const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));\n\n  tenant.daysUntil = daysUntil;\n\n  const paymentStatus = (tenant['Payment Status'] || '').toLowerCase();\n  const isUnpaid = paymentStatus === 'unpaid';\n\n  const isDueToday = daysUntil === 0;\n  const isUpcoming = daysUntil > 0 && daysUntil <= 5;\n  const isOverdue = daysUntil < 0;\n\n  let reminderType = null;\n  if (isDueToday) reminderType = 'due-today';\n  else if (isUpcoming) reminderType = 'upcoming';\n  else if (isOverdue) reminderType = 'overdue';\n\n  tenant.reminderType = reminderType;\n  tenant.daysOverdue = isOverdue ? Math.abs(daysUntil) : 0;\n\n  tenant.shouldRemind =\n    isUnpaid &&\n    reminderType &&\n    reminderSent.toUpperCase() === 'FALSE';\n\n  tenant.email = email;\n  tenant.rentAmount = rentAmount;\n\n  return { json: tenant };\n});\n\nreturn results.filter(i => i.json.shouldRemind);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        96
+      ],
+      "id": "319d932c-9d61-448f-a092-66e191ebe11b",
+      "name": "Filter & Categorize"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst updates = items.map(item => {\n  const data = item.json;\n\n  if (!data.row_number && !data.originalData?.row_number) {\n    throw new Error('Missing row_number — cannot update Google Sheet row');\n  }\n\n  const rowNumber = data.row_number ?? data.originalData.row_number;\n\n  const today = new Date();\n  const dateString = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;\n\n  return {\n    json: {\n      row_number: rowNumber,\n\n      // REQUIRED: fields Google Sheets must retain\n      'Tenant Name': data['Tenant Name'],\n      'Email': data.Email,\n      'Building': data.Building,\n      'Unit #': data['Unit #'],\n      'Rent Amount': data['Rent Amount'],\n      'Due Date': data['Due Date'],\n      'Payment Status': data['Payment Status'],\n\n      // REMINDER STATE\n      'Reminder Sent': 'TRUE',\n      'Last Reminder Type': data.reminderType,\n      'Last Reminder Date': dateString\n    }\n  };\n});\n\nreturn updates;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        48
+      ],
+      "id": "611f6b80-10ba-4c07-9d78-4587a4a832a8",
+      "name": "Prepare Update"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs",
+          "mode": "list",
+          "cachedResultName": "landlord-test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lMCTuKHRLp4iYAx6x8DPQKIDUTlCioL_mouMjHgsXEs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tenant Name": "={{ $json['Tenant Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Building": "={{ $json.Building }}",
+            "Unit #": "={{ $json['Unit #'] }}",
+            "Rent Amount": "={{ $json['Rent Amount'] }}",
+            "Due Date": "={{ $json['Due Date'] }}",
+            "Payment Status": "={{ $json['Payment Status'] }}",
+            "Reminder Sent": "={{ $json['Reminder Sent'] }}",
+            "Last Reminder Date": "={{ $json['Last Reminder Date'] }}"
+          },
+          "matchingColumns": [
+            "Tenant Name"
+          ],
+          "schema": [
+            {
+              "id": "Tenant Name",
+              "displayName": "Tenant Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Building",
+              "displayName": "Building",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unit #",
+              "displayName": "Unit #",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rent Amount",
+              "displayName": "Rent Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment Status",
+              "displayName": "Payment Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Reminder Type",
+              "displayName": "Last Reminder Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Reminder Date",
+              "displayName": "Last Reminder Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3360,
+        48
+      ],
+      "id": "a2a77212-4fc8-4a8e-90e7-608ff39bfb92",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VkAQHxhd5Rj8JCYH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85fe7ea2-51c4-4bef-be5c-91c8654471fc",
+              "name": "row_number",
+              "value": "={{ $('Filter & Categorize').item.json.row_number }}",
+              "type": "string"
+            },
+            {
+              "id": "5984f594-9c30-4d50-b618-4455dad25c61",
+              "name": "Tenant Name",
+              "value": "={{ $('Filter & Categorize').item.json['Tenant Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "971b4d91-16c4-4f5b-ab36-e4aca4ceff43",
+              "name": "Building",
+              "value": "={{ $('Filter & Categorize').item.json.Building }}",
+              "type": "string"
+            },
+            {
+              "id": "9070e3e0-b2e8-40b9-9231-8c35c280a2ba",
+              "name": "Unit #",
+              "value": "={{ $('Filter & Categorize').item.json['Unit #'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5b47041d-50a7-4b3a-9772-43cb2d1c9d1e",
+              "name": "Rent Amount",
+              "value": "={{ $('Filter & Categorize').item.json['Rent Amount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "411b18c7-55da-40d0-a3ff-59f0cefded25",
+              "name": "Due Date",
+              "value": "={{ $('Filter & Categorize').item.json['Due Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "23f2dc3c-baac-4182-af56-101b9429853a",
+              "name": "Payment Status",
+              "value": "={{ $('Filter & Categorize').item.json['Payment Status'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f97d328c-361c-4ca4-9249-c04b79db4249",
+              "name": "Email",
+              "value": "={{ $('Filter & Categorize').item.json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "85932162-a6c2-413f-b547-916063150ddc",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        48
+      ],
+      "id": "85384680-9888-4881-8d2a-d29a1629baeb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85fe7ea2-51c4-4bef-be5c-91c8654471fc",
+              "name": "row_number",
+              "value": "={{ $('Filter & Categorize').item.json.row_number }}",
+              "type": "string"
+            },
+            {
+              "id": "5984f594-9c30-4d50-b618-4455dad25c61",
+              "name": "Tenant Name",
+              "value": "={{ $('Filter & Categorize').item.json['Tenant Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "971b4d91-16c4-4f5b-ab36-e4aca4ceff43",
+              "name": "Building",
+              "value": "={{ $('Filter & Categorize').item.json.Building }}",
+              "type": "string"
+            },
+            {
+              "id": "9070e3e0-b2e8-40b9-9231-8c35c280a2ba",
+              "name": "Unit #",
+              "value": "={{ $('Filter & Categorize').item.json['Unit #'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5b47041d-50a7-4b3a-9772-43cb2d1c9d1e",
+              "name": "Rent Amount",
+              "value": "={{ $('Filter & Categorize').item.json['Rent Amount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "411b18c7-55da-40d0-a3ff-59f0cefded25",
+              "name": "Due Date",
+              "value": "={{ $('Filter & Categorize').item.json['Due Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "23f2dc3c-baac-4182-af56-101b9429853a",
+              "name": "Payment Status",
+              "value": "={{ $('Filter & Categorize').item.json['Payment Status'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f97d328c-361c-4ca4-9249-c04b79db4249",
+              "name": "Email",
+              "value": "={{ $('Filter & Categorize').item.json.Email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        192
+      ],
+      "id": "51f4e7c6-e0e6-458f-91c6-74054d37736f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85fe7ea2-51c4-4bef-be5c-91c8654471fc",
+              "name": "row_number",
+              "value": "={{ $('Filter & Categorize').item.json.row_number }}",
+              "type": "string"
+            },
+            {
+              "id": "5984f594-9c30-4d50-b618-4455dad25c61",
+              "name": "Tenant Name",
+              "value": "={{ $('Filter & Categorize').item.json['Tenant Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "971b4d91-16c4-4f5b-ab36-e4aca4ceff43",
+              "name": "Building",
+              "value": "={{ $('Filter & Categorize').item.json.Building }}",
+              "type": "string"
+            },
+            {
+              "id": "9070e3e0-b2e8-40b9-9231-8c35c280a2ba",
+              "name": "Unit #",
+              "value": "={{ $('Filter & Categorize').item.json['Unit #'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5b47041d-50a7-4b3a-9772-43cb2d1c9d1e",
+              "name": "Rent Amount",
+              "value": "={{ $('Filter & Categorize').item.json['Rent Amount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "411b18c7-55da-40d0-a3ff-59f0cefded25",
+              "name": "Due Date",
+              "value": "={{ $('Filter & Categorize').item.json['Due Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "23f2dc3c-baac-4182-af56-101b9429853a",
+              "name": "Payment Status",
+              "value": "={{ $('Filter & Categorize').item.json['Payment Status'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f97d328c-361c-4ca4-9249-c04b79db4249",
+              "name": "Email",
+              "value": "={{ $('Filter & Categorize').item.json.Email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        -80
+      ],
+      "id": "af7410eb-06cb-48d1-9388-a25624ecd657",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst processedItems = items.map(item => {\n  const tenant = item.json;\n\n  const dueDate = new Date(tenant['Due Date']);\n  dueDate.setHours(0, 0, 0, 0);\n\n  const timeDiff = dueDate.getTime() - today.getTime();\n  const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));\n\n  const isDueToday = daysUntil === 0;\n  const isOverdue = daysUntil < 0;\n\n  let currentPhase = 'upcoming';\n  if (isDueToday) currentPhase = 'due-today';\n  if (isOverdue) currentPhase = 'overdue';\n\n  const lastPhase = tenant['Last Reminder Type'] || '';\n  let reminderSent = tenant['Reminder Sent'] || 'FALSE';\n\n  // 🔒 RESET ONLY IF PHASE CHANGED\n  if (currentPhase !== lastPhase) {\n    reminderSent = 'FALSE';\n  }\n\n  tenant['Reminder Sent'] = reminderSent;\n  tenant['Current Phase'] = currentPhase;\n\n  return { json: tenant };\n});\n\nreturn processedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        96
+      ],
+      "id": "86494559-7eb2-497c-b9be-d22817fe5061",
+      "name": "allows reminders to be sent again"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "allows reminders to be sent again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Prepare Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Categorize": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Update": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "allows reminders to be sent again": {
+      "main": [
+        [
+          {
+            "node": "Filter & Categorize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "759e32d1-8313-4402-826a-2455cb192113",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "12a132bfe2bc9efbcdd00f85556577d31d9333c56cdc069be74b37dc40b1daeb"
+  },
+  "id": "GybxEuLw1dA3HooA",
+  "tags": []
+}
